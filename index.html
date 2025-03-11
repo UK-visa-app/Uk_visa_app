@@ -347,21 +347,53 @@ function handleFormData(data) {
     }
 }
 
-function addMessage(text, sender) {
-    if (!chats[currentChatId]) {
-        console.error('No active chat to add messages');
-        return; // Если текущий чат не найден, выходим из функции
+// function addMessage(text, sender) {
+//     if (!chats[currentChatId]) {
+//         console.error('No active chat to add messages');
+//         return; // Если текущий чат не найден, выходим из функции
+//     }
+
+//     const msg = {
+//         text: text,
+//         sender: sender
+//     };
+
+//     chats[currentChatId].messages.push(msg);
+//     updateChatBox(); // Обновляем отображение чата
+    
+// }
+
+function sendMessage() {
+    const userInput = document.getElementById('userInput').value;
+    if (userInput.trim() === '') {
+        alert('Пожалуйста, введите сообщение.');
+        return;
     }
 
-    const msg = {
-        text: text,
-        sender: sender
-    };
-
-    chats[currentChatId].messages.push(msg);
-    updateChatBox(); // Обновляем отображение чата
-    
+    fetch('https://uk-visa-app-5959728e2431.herokuapp.com/send', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: userInput })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Message sent:', data);
+        document.getElementById('chat-box').innerHTML += `<div>${data.message}</div>`;
+        document.getElementById('userInput').value = ''; // Очистка поля ввода
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
 }
+
+
 
 function updateEditButtonState() {
     // Check if there are any messages or data entries in the current chat
