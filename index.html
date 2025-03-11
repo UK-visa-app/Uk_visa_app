@@ -235,7 +235,7 @@ sendBtn.addEventListener('click', async () => {
     userInput.value = '';
 
     try {
-        const response = await fetch('https://uk-visa-app-5959728e2431.herokuapp.com/', {
+        const response = await fetch('https://uk-visa-app-5959728e2431.herokuapp.com/process', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message, currentForm: chats[currentChatId].parsedData })
