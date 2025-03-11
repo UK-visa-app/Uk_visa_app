@@ -226,27 +226,59 @@ function clearEditFields() {
 }
 
 
-const sendBtn = document.getElementById('sendBtn');
-sendBtn.addEventListener('click', async () => {
-    const userInput = document.getElementById('userInput');
-    const message = userInput.value.trim();
-    if (!message) return;
-    addMessage('Вы: ' + message, 'user');
-    userInput.value = '';
+// const sendBtn = document.getElementById('sendBtn');
+// sendBtn.addEventListener('click', async () => {
+//     const userInput = document.getElementById('userInput');
+//     const message = userInput.value.trim();
+//     if (!message) return;
+//     addMessage('Вы: ' + message, 'user');
+//     userInput.value = '';
 
-    try {
-        const response = await fetch('/process', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message, currentForm: chats[currentChatId].parsedData })
-        });
-        const data = await response.json();
-        handleFormData(data);
-    } catch (err) {
-        console.error('Ошибка при обработке запроса:', err);
-        addMessage('Ошибка при обработке запроса.', 'assistant');
+//     try {
+//         const response = await fetch('/process', {
+//             method: 'POST',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify({ message, currentForm: chats[currentChatId].parsedData })
+//         });
+//         const data = await response.json();
+//         handleFormData(data);
+//     } catch (err) {
+//         console.error('Ошибка при обработке запроса:', err);
+//         addMessage('Ошибка при обработке запроса.', 'assistant');
+//     }
+// });
+
+function sendMessage() {
+    const userInput = document.getElementById('userInput').value;
+    if (userInput.trim() === '') {
+        alert('Пожалуйста, введите сообщение.');
+        return;
     }
-});
+
+    fetch('https://uk-visa-app-5959728e2431.herokuapp.com/send', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ message: userInput })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Message sent:', data);
+        document.getElementById('chat-box').innerHTML += `<div>${data.message}</div>`;
+        document.getElementById('userInput').value = ''; // Очистка поля ввода
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+}
+
+
 
 // function handleFormData(data) {
 //     let hasErrors = false;
@@ -347,50 +379,20 @@ function handleFormData(data) {
     }
 }
 
-// function addMessage(text, sender) {
-//     if (!chats[currentChatId]) {
-//         console.error('No active chat to add messages');
-//         return; // Если текущий чат не найден, выходим из функции
-//     }
-
-//     const msg = {
-//         text: text,
-//         sender: sender
-//     };
-
-//     chats[currentChatId].messages.push(msg);
-//     updateChatBox(); // Обновляем отображение чата
-    
-// }
-
-function sendMessage() {
-    const userInput = document.getElementById('userInput').value;
-    if (userInput.trim() === '') {
-        alert('Пожалуйста, введите сообщение.');
-        return;
+function addMessage(text, sender) {
+    if (!chats[currentChatId]) {
+        console.error('No active chat to add messages');
+        return; // Если текущий чат не найден, выходим из функции
     }
 
-    fetch('https://uk-visa-app-5959728e2431.herokuapp.com/send', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ message: userInput })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Message sent:', data);
-        document.getElementById('chat-box').innerHTML += `<div>${data.message}</div>`;
-        document.getElementById('userInput').value = ''; // Очистка поля ввода
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-    });
+    const msg = {
+        text: text,
+        sender: sender
+    };
+
+    chats[currentChatId].messages.push(msg);
+    updateChatBox(); // Обновляем отображение чата
+    
 }
 
 
